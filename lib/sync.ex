@@ -1,6 +1,4 @@
 defmodule Sync do
-  #use OptionParser
-
   def main(args) do
     args |> parse_args |> Sync.Sync_Manager.sync
   end
