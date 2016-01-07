@@ -7,7 +7,6 @@ defmodule Sync do
 
   def parse_args(args) do
     {_, dirs, _} = OptionParser.parse(args)
-    #IO.puts(options)
     dirs
   end
 end

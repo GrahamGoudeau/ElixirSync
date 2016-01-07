@@ -5,7 +5,6 @@ defmodule Sync.Sync_Manager do
   end
 
   defp spawn_threads([]) do
-    IO.puts('done spawning')
   end
 
   defp spawn_threads([dir | dirs]) do
