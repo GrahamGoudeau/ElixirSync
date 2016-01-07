@@ -13,15 +13,22 @@ defmodule Sync.Sync_Manager do
   end
 
   def manage(directory) do
-    #{:ok, files} = File.ls directory
-    files = get_files (File.ls directory)
+    files = get_files directory
     IO.inspect files
     :timer.sleep(1000)
     manage(directory)
   end
 
-  defp get_files({:ok, contents}) do
-    for item <- contents, not (File.dir?(item)), do: item
+  defp get_files(dir) do
+    dir |> get_dir_contents |> Enum.filter &(not File.dir?(&1))
+  end
+
+  defp get_dir_contents(dir) do
+    {:ok, content} = File.ls dir
+    full_path = dir |> Path.absname |> Path.expand
+
+    # return the contens with their full paths
+    for item <- content, do: full_path <> "/" <> item
   end
 
   defp wait_forever() do
