@@ -13,19 +13,15 @@ defmodule Sync.Sync_Manager do
   end
 
   def manage(directory) do
-    files = get_files directory
+    #{:ok, files} = File.ls directory
+    files = get_files (File.ls directory)
     IO.inspect files
     :timer.sleep(1000)
-    IO.puts('done')
+    manage(directory)
   end
 
-  defp get_files(directory) do
-    result = case File.ls directory do
-      {:ok, files} -> files
-      {:error, reason} -> reason
-    end
-    IO.inspect result
-    result
+  defp get_files({:ok, contents}) do
+    for item <- contents, not (File.dir?(item)), do: item
   end
 
   defp wait_forever() do
