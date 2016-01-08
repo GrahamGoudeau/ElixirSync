@@ -25,10 +25,10 @@ defmodule Sync.Sync_Manager do
 
     # do the initial serve, since every file needs updating
     serve_update_files files, fetch_threads
-    serve_loop dir, files, file_digests_map, fetch_threads
+    serve_loop dir, files, file_digests_map, fetch_threads, time_delay
   end
 
-  defp serve_loop(dir, files, file_digests, fetch_threads) do
+  defp serve_loop(dir, files, file_digests, fetch_threads, time_delay) do
     new_files_list = get_files dir
     new_digests = build_digests_map new_files_list
     updated_files = for file <- new_files_list, Map.get(new_digests, file, nil) == nil or
@@ -39,8 +39,26 @@ defmodule Sync.Sync_Manager do
     serve_update_files updated_files, fetch_threads
     serve_delete_files deleted_files, fetch_threads
 
-    :timer.sleep(3000)
-    serve_loop(dir, new_files_list, new_digests, fetch_threads)
+    :timer.sleep(time_delay)
+    serve_loop(dir, new_files_list, new_digests, fetch_threads, time_delay)
+  end
+
+  defp fetch_loop(dir, time_delay) do
+    message = receive do
+      {:update, filename, contents} -> handle_fetch_update dir, filename, contents
+      {:delete, filename} -> handle_fetch_delete dir, filename
+    end
+    IO.puts "fetch loop cycling"
+    :timer.sleep(time_delay)
+    fetch_loop(dir, time_delay)
+  end
+
+  defp handle_fetch_update(dir, filename, contents) do
+    IO.puts "Handling update for " <> filename
+  end
+
+  defp handle_fetch_delete(dir, filename) do
+    IO.puts "handling delete for " <> filename
   end
 
   defp serve_delete_files(files, fetch_threads) do
