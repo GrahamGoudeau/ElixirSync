@@ -6,8 +6,8 @@ defmodule Sync.Sync_Manager do
 
   defp spawn_managers(dirs) do
     absolute_dirs = Enum.map dirs, &get_absolute_path/1
-    serve_threads = Enum.map absolute_dirs, &(spawn(__MODULE__, :setup_serve, [&1]))
-    fetch_threads = Enum.map absolute_dirs, &({&1, spawn(__MODULE__, :setup_fetch, [&1])})
+    serve_threads = Enum.map absolute_dirs, &(spawn_link(__MODULE__, :setup_serve, [&1]))
+    fetch_threads = Enum.map absolute_dirs, &({&1, spawn_link(__MODULE__, :setup_fetch, [&1])})
     broadcast serve_threads, {:fetch_threads, fetch_threads}
   end
 
