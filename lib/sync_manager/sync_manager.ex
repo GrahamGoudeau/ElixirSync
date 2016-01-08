@@ -33,9 +33,10 @@ defmodule Sync.Sync_Manager do
   defp serve_loop(dir, files, file_digests, fetch_threads, time_delay) do
     new_files_list = get_files dir
     new_digests = build_digests_map new_files_list
-    updated_files = for file <- new_files_list, Map.get(new_digests, file, nil) == nil or
-                                                (Map.get(new_digests, file) != Map.get(file_digests, file)),
-                                                do: file
+    updated_files = for file <- new_files_list,
+                        Map.get(new_digests, file, nil) != Map.get(file_digests, file, nil),
+                        do: file
+
     deleted_files = files -- new_files_list
 
     serve_update_files updated_files, fetch_threads
