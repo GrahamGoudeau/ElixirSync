@@ -48,19 +48,28 @@ defmodule Sync.Sync_Manager do
 
   defp fetch_loop(dir, time_delay) do
     receive do
-      {:update, filename, contents} -> handle_fetch_update dir, filename, contents
-      {:delete, filename} -> handle_fetch_delete dir, filename
+      {:update, filename, contents} -> spawn_link(__MODULE__, :handle_fetch_update, [dir, filename, contents])
+      {:delete, filename} -> spawn_link(__MODULE__, :handle_fetch_delete, [dir, filename])
     end
     :timer.sleep(time_delay)
     fetch_loop(dir, time_delay)
   end
 
-  defp handle_fetch_update(dir, filename, contents) do
-    IO.puts "Handling update for " <> filename
+  def handle_fetch_update(dir, filename, contents) do
+    IO.puts "Fetched UPDATE for " <> filename
+    File.write! dir <> "/" <> filename, contents
   end
 
-  defp handle_fetch_delete(dir, filename) do
-    IO.puts "handling delete for " <> filename
+  def handle_fetch_delete(dir, filename) do
+    IO.puts "Fetched DELETE for " <> filename
+
+    # wait a short time to see if the file will get automatically cleaned up
+    # this can happen with files like vim's *.swp files
+    :timer.sleep(500)
+    case File.exists?(dir <> "/" <> filename) do
+      true -> File.rm! dir <> "/" <> filename
+      _ -> :ok
+    end
   end
 
   defp serve_delete_files(files, fetch_threads) do
