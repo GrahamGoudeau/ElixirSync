@@ -7,23 +7,25 @@ defmodule Sync.Sync_Manager do
   defp spawn_managers(dirs) do
     absolute_dirs = Enum.map dirs, &get_absolute_path/1
     serve_threads = Enum.map absolute_dirs, &(spawn_link(__MODULE__, :setup_serve, [&1]))
+
+    # record the fetch threads with their corresponding directory,
+    # so that serve threads avoid serving content to their corresponding fetch threads
     fetch_threads = Enum.map absolute_dirs, &({&1, spawn_link(__MODULE__, :setup_fetch, [&1])})
+
     broadcast serve_threads, {:fetch_threads, fetch_threads}
   end
 
   def setup_serve(dir) do
     time_delay = 500
 
-    # get the destinations where we will serve to
+    # get the destinations this thread will serve to (excludes its own directory)
     fetch_threads = receive_fetch_threads dir
 
     files = get_files dir
 
-    # build the initial state of the files to compare against later
     file_digests_map = build_digests_map files
-    IO.inspect file_digests_map
 
-    # do the initial serve, since every file needs updating
+    # do the initial serve, since every file needs updating at the start of execution
     serve_update_files files, fetch_threads
     serve_loop dir, files, file_digests_map, fetch_threads, time_delay
   end
@@ -48,7 +50,6 @@ defmodule Sync.Sync_Manager do
       {:update, filename, contents} -> handle_fetch_update dir, filename, contents
       {:delete, filename} -> handle_fetch_delete dir, filename
     end
-    IO.puts "fetch loop cycling"
     :timer.sleep(time_delay)
     fetch_loop(dir, time_delay)
   end
