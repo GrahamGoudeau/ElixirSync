@@ -1,8 +1,11 @@
 # ElixirSync
 **Concurrently sync the contents of two or more system directories, in the style of a tool like Dropbox**
 ***
+## Compilation
+    mix escript.build
+    
 ## Usage
-    ./sync [dir1] [dir2] [...]
+    ./esync [dir1] [dir2] [...]
     
 ## Explanation
 The script spawns two threads per directory:
