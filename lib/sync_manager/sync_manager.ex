@@ -44,7 +44,7 @@ defmodule Sync.Sync_Manager do
   end
 
   defp fetch_loop(dir, time_delay) do
-    message = receive do
+    receive do
       {:update, filename, contents} -> handle_fetch_update dir, filename, contents
       {:delete, filename} -> handle_fetch_delete dir, filename
     end
