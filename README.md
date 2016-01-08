@@ -53,8 +53,9 @@ And how these challenges were solved:
 * Elixir's `send/2` function allows for easy communication across processes.  Since the server threads have a list of all the acceptable fetch threads to serve to, they call my module's function `broadcast/2` with their list of threads to serve the updated content:
 
 
-    defp broadcast([], _) do end
-    defp broadcast([recipient | recipients], message) do
-      send recipient, message
-      broadcast(recipients, message)
-    end
+    
+        defp broadcast([], _) do end
+        defp broadcast([recipient | recipients], message) do
+          send recipient, message
+          broadcast(recipients, message)
+        end
