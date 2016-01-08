@@ -12,6 +12,8 @@ defmodule Sync.Sync_Manager do
   end
 
   def setup_serve(dir) do
+    time_delay = 500
+
     # get the destinations where we will serve to
     fetch_threads = receive_fetch_threads dir
 
@@ -74,7 +76,8 @@ defmodule Sync.Sync_Manager do
   end
 
   def setup_fetch(dir) do
-    IO.puts "Ready to fetch to " <> dir
+    time_delay = 500
+    fetch_loop(dir, time_delay)
   end
 
   defp broadcast([], _) do end
